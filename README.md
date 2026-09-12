@@ -391,19 +391,10 @@ The first version of GitReal is intentionally focused.
 
 GitReal is starting with a focused MVP, but there are plenty of directions it could eventually go:
 
-* More detailed project-level evidence
-* Package/dependency analysis
 * README analysis
-* Commit-quality signals
-* Pull request analysis
-* Technology recency
 * Private repository support
-* GitLab support
-* Resume improvement suggestions
 * Job-description matching
 * Developer growth tracking
-* Historical reports
-* Team/company analytics
 
 The goal is to expand only when the core product proves useful.
 
@@ -444,11 +435,7 @@ GitReal should therefore be viewed as an **evidence and reflection tool**, not a
 
 # 👨‍💻 Why I'm Building This
 
-I wanted to build something that sits at the intersection of:
-
-**developers + GitHub + resumes + data + AI**
-
-But more importantly, I wanted to build a project where the engineering itself could be visible.
+I got my resume reviewed today. The feedback was that my GitHub didn't back up what my resume claimed. That's when I realized I had no idea what my GitHub was actually communicating to recruiters. I built GitReal because I needed it myself.
 
 Instead of simply putting another project on my resume, I'm documenting the process of building GitReal from scratch and seeing whether people actually find it useful.
 
