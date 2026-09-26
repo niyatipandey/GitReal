@@ -2,182 +2,143 @@
 
 > **Does your GitHub actually back up your resume?**
 
-GitReal is a developer credibility tool that compares what you **claim on your resume** with what your **GitHub activity actually shows**.
+GitReal is a developer credibility tool that compares what you claim on your resume with what your public GitHub activity actually shows.
 
-Connect your GitHub, upload your resume, and GitReal analyzes your repositories, languages, coding activity, and projects to generate an evidence-based view of your technical skills.
+Upload your resume. Connect your GitHub. GitReal tells you what a recruiter sees — and where the gaps are.
 
-**Built in public. 30 days. One product.**
+**Built in public.**
 
-[Live Demo] · [GitHub] · [Build in Public]
+[Live Demo](#) · [GitHub](#) · [Follow the Build](#)
 
 ---
 
-## 🚀 The Problem
+## 🚨 The Problem
 
 A resume can say:
 
 > React · Node.js · MongoDB · Python · Docker · AWS
 
-But a resume doesn't show whether those skills are actually backed by real work.
+But a resume doesn't show whether those skills are backed by real work.
 
-At the same time, GitHub contains a huge amount of information about how a developer actually builds:
+**GitHub does.**
 
-* What languages they use
-* What projects they've worked on
-* How consistently they contribute
-* Which technologies appear repeatedly
-* Where their recent activity is concentrated
-* How diverse their development experience is
+The problem is that most developers have no idea what their public GitHub is actually communicating to someone reviewing their application.
 
-The problem is that this information is difficult to interpret.
-
-**GitReal connects the two.**
+GitReal closes that gap.
 
 ---
 
-## 💡 How It Works
+## 🔍 How It Works
 
 ```text
-                ┌─────────────────┐
-                │   Connect GitHub │
-                └────────┬────────┘
-                         ↓
-                ┌─────────────────┐
-                │ Analyze GitHub  │
-                │    Activity     │
-                └────────┬────────┘
-                         ↓
-                ┌─────────────────┐
-                │  Upload Resume  │
-                └────────┬────────┘
-                         ↓
-                ┌─────────────────┐
-                │ Extract Skills  │
-                └────────┬────────┘
-                         ↓
-                ┌─────────────────┐
-                │ Match Skills to │
-                │ GitHub Evidence  │
-                └────────┬────────┘
-                         ↓
-                ┌─────────────────┐
-                │    GitReal      │
-                │     Report      │
-                └─────────────────┘
+Upload Resume
+      ↓
+LLM extracts your tech stack
+      ↓
+You confirm or edit
+      ↓
+Connect GitHub (OAuth)
+      ↓
+Select which skills to check
+      ↓
+GitReal analyzes your public repositories
+      ↓
+Your GitReal Report
 ```
 
-The result is a simple answer to:
+The result answers one simple question:
 
-> **"Does my GitHub actually support what I say I can do?"**
+> **"Does my public GitHub support what my resume claims?"**
 
 ---
 
-# 📊 What GitReal Analyzes
+## ✨ What GitReal Analyzes
 
-### GitHub Profile
+### 📄 Resume Skill Extraction
 
-GitReal retrieves basic profile information such as:
+Upload your resume and GitReal uses an LLM to extract the technologies you claim.
 
-* Name
-* Bio
-* Avatar
-* Public repositories
-* Repository languages
+It automatically normalizes variations such as:
 
-### Coding Activity
+| Resume   | Normalized |
+| -------- | ---------- |
+| ReactJS  | React      |
+| Node.js  | Node       |
+| Mongo DB | MongoDB    |
+| Postgres | PostgreSQL |
 
-GitReal analyzes GitHub activity to calculate things such as:
+You **confirm or edit the extracted skills** before analysis begins.
 
-* Current coding streak
-* Longest coding streak
-* Activity patterns
-* Most active days
-* Inactive periods
-* Contribution distribution
-
-### Language Distribution
-
-GitReal looks across your repositories to understand your actual technology distribution.
-
-For example:
-
-```text
-JavaScript      ████████████████  42%
-TypeScript      ███████████       29%
-Python          █████              13%
-HTML/CSS        ████              10%
-Other           ██                 6%
-```
-
-This provides a more realistic picture of your development activity than simply listing languages on a resume.
-
-### Repository Diversity
-
-GitReal also attempts to understand how broad your development experience is across repositories, languages, and project types.
+You stay in control.
 
 ---
 
-# 📄 Resume vs Reality
+### 🐙 GitHub Evidence
 
-This is the core feature of GitReal.
+For every skill you select, GitReal analyzes your **public repositories** for two primary signals:
 
-Upload your resume and GitReal extracts the technical skills you claim to have.
+#### Breadth
 
-It then normalizes different ways of writing the same technology:
+How many repositories show evidence of the technology?
 
-```text
-ReactJS       → React
-React.js      → React
-NodeJS        → Node
-Node.js       → Node
-Mongo DB      → MongoDB
-Postgres      → PostgreSQL
-```
+#### Recency
 
-GitReal then compares those skills against available GitHub evidence.
+When did you last actively use it?
+
+Both signals matter.
+
+A skill used across 5 repositories but dormant for 18 months tells a different story from a skill you used last week.
+
+---
+
+## 📊 Resume vs Reality
+
+GitReal turns the analysis into an easy-to-understand comparison.
+
+| Resume Skill | GitHub Evidence                 | Assessment     |
+| ------------ | ------------------------------- | -------------- |
+| React        | Multiple repos, recently active | 🟢 Strong      |
+| Node.js      | Several backend projects        | 🟢 Strong      |
+| Python       | One small project               | 🟡 Moderate    |
+| Docker       | Little to no evidence           | 🔴 Limited     |
+| AWS          | No meaningful evidence found    | ⚫ No Evidence |
+
+Each result includes a plain-English explanation rather than just a score.
 
 ### Example
 
-| Resume Skill | GitHub Evidence                              | Assessment    |
-| ------------ | -------------------------------------------- | ------------- |
-| React        | Multiple repositories + significant activity | 🟢 Strong     |
-| Node.js      | Several backend projects                     | 🟢 Strong     |
-| Python       | One small project                            | 🟡 Moderate   |
-| Docker       | Mentioned on resume, little/no evidence      | 🔴 Limited    |
-| AWS          | No meaningful GitHub evidence detected       | ⚫ No Evidence |
+> **"React found in 4 repositories. Last active 2 months ago. Strong visibility."**
 
-The goal isn't to judge whether someone is a "good" or "bad" developer.
+Or:
 
-The goal is to answer:
-
-> **"How well does your public GitHub evidence support your resume claims?"**
+> **"Docker mentioned on your resume but found in 0 public repositories. One small project would significantly improve this."**
 
 ---
 
-# 🤖 AI Recommendations
+## 🤖 AI Recommendations
 
-Once GitReal has structured your GitHub and resume data, the analytics can be passed to an LLM to generate personalized recommendations.
+Once the deterministic analysis is complete, GitReal passes the structured results to an LLM to generate specific, actionable recommendations.
 
 For example:
 
-> **Your GitHub strongly supports your React and Node.js experience, but your resume lists AWS prominently without much corresponding evidence. Consider either adding a project demonstrating AWS usage or reducing the emphasis on AWS in your resume.**
+> **"Your GitHub strongly supports React and Node.js. However, AWS appears prominently on your resume with no corresponding public evidence. Consider either building a small project that uses AWS or reducing its emphasis on your resume before your next application."**
 
-The AI is used for **interpretation and recommendations**, while the underlying GitHub analytics remain structured and deterministic.
+**The underlying analysis is deterministic.**
+
+AI is used for **interpretation and recommendations**, not for calculating the evidence itself.
 
 ---
 
-# 🔗 Shareable Developer Report
+## 🔗 Shareable Developer Report
 
-GitReal is designed to produce a public, shareable report for each developer.
-
-Instead of sending someone a GitHub profile and a resume separately, you can share one link showing:
+GitReal generates a public report you can share with anyone.
 
 ```text
 ┌───────────────────────────────────┐
 │             GITREAL               │
 │                                   │
 │          Your Name                │
-│       Developer Report             │
+│       Developer Report            │
 │                                   │
 │  🔥 24 day streak                 │
 │  💻 6 languages                   │
@@ -185,272 +146,106 @@ Instead of sending someone a GitHub profile and a resume separately, you can sha
 │                                   │
 │  Resume vs Reality                │
 │                                   │
-│  React       🟢 Strong             │
-│  Node        🟢 Strong             │
-│  Python      🟡 Moderate           │
-│  Docker      🔴 Limited            │
+│  React       🟢 Strong            │
+│  Node        🟢 Strong            │
+│  Python      🟡 Moderate          │
+│  Docker      🔴 Limited           │
 │                                   │
-│       gitreal.app/...             │
+│     gitreal.app/your-username     │
 └───────────────────────────────────┘
 ```
 
-The goal is to make the report useful **and** worth sharing.
+**One link. Everything a recruiter needs to see.**
 
 ---
 
-# 🛠️ Tech Stack
+## 🛠️ Tech Stack
 
-### Frontend
-
-* React
-* Vite
-* Recharts
-
-### Backend
-
-* Node.js
-* Express
-
-### Database
-
-* MongoDB
-
-### Authentication
-
-* GitHub OAuth
-
-### AI
-
-* Groq
-
-### Deployment
-
-* Vercel — Frontend
-* Render — Backend
+| Layer               | Technology            |
+| ------------------- | --------------------- |
+| Frontend            | React, Vite, Recharts |
+| Backend             | Node.js, Express      |
+| Database            | MongoDB               |
+| Authentication      | GitHub OAuth          |
+| AI                  | Groq                  |
+| Frontend Deployment | Vercel                |
+| Backend Deployment  | Render                |
 
 ---
 
-# 🏗️ Project Structure
+## 🗺️ Roadmap
 
-```text
-gitreal/
-│
-├── client/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   └── services/
-│   └── ...
-│
-├── server/
-│   ├── controllers/
-│   ├── routes/
-│   ├── services/
-│   │   ├── github/
-│   │   ├── analytics/
-│   │   ├── resume/
-│   │   └── ai/
-│   ├── models/
-│   ├── middleware/
-│   └── ...
-│
-└── README.md
-```
+| Week       | Focus                                                          |
+| ---------- | -------------------------------------------------------------- |
+| **Week 1** | GitHub OAuth, profile data, repo + language fetching           |
+| **Week 2** | Streak calculations, activity patterns, analytics dashboard    |
+| **Week 3** | Resume upload, PDF parsing, skill extraction, normalization    |
+| **Week 4** | Evidence matching, Resume vs Reality table, AI recommendations |
+| **Week 5** | Shareable reports, mobile responsiveness, deployment           |
+| **Week 6** | End-to-end testing, bug fixes, launch                          |
 
 ---
 
-# 🔐 Data & Architecture
+## ✅ MVP Checklist
 
-GitReal uses the backend as the intermediary between the frontend and GitHub.
-
-```text
-Browser
-   │
-   ↓
-GitReal Backend
-   │
-   ├──── GitHub API
-   │
-   ├──── MongoDB
-   │
-   └──── AI / Analysis
-```
-
-GitHub data is cached where appropriate to avoid repeatedly requesting the same information and to reduce unnecessary API usage.
-
-The application also accounts for GitHub API pagination and rate limits when collecting activity data.
+* [ ] GitHub OAuth
+* [ ] Public repository analysis
+* [ ] Language distribution
+* [ ] Coding streaks and activity patterns
+* [ ] Resume upload and parsing
+* [ ] LLM skill extraction with user confirmation
+* [ ] Skill normalization
+* [ ] Resume vs GitHub evidence matching
+* [ ] AI recommendations
+* [ ] Shareable developer report
+* [ ] Responsive UI
+* [ ] Production deployment
 
 ---
 
-# 🗓️ Building GitReal in 30 Days
+## 🔐 Privacy & Scope
 
-I'm building GitReal publicly over 30 days.
+GitReal analyzes **public GitHub activity only** — exactly the information a recruiter can see when they open your public GitHub profile.
 
-The objective isn't just to finish a project.
+### GitReal does not:
 
-It's to document the actual process of turning an idea into a deployed product — including the bugs, mistakes, design decisions, technical problems, and things I learn along the way.
+* Access private repositories
+* Analyze private commits
+* Access private code
+* Include private repositories in your report
 
-### The roadmap
-
-| Day | Milestone                       |
-| --- | ------------------------------- |
-| 01  | Project setup                   |
-| 02  | GitHub OAuth                    |
-| 03  | GitHub profile data             |
-| 04  | Profile frontend                |
-| 05  | Repository + language data      |
-| 06  | MongoDB caching                 |
-| 07  | **Week 1 MVP**                  |
-| 08  | Commit pagination + rate limits |
-| 09  | Streak calculations             |
-| 10  | Language analysis               |
-| 11  | Activity patterns               |
-| 12  | Repository diversity            |
-| 13  | Analytics dashboard             |
-| 14  | **Analytics complete**          |
-| 15  | Resume upload                   |
-| 16  | PDF parsing                     |
-| 17  | Skill extraction                |
-| 18  | Skill normalization             |
-| 19  | Evidence matching               |
-| 20  | Evidence table                  |
-| 21  | **Resume vs Reality complete**  |
-| 22  | AI recommendations              |
-| 23  | Recommendation UI               |
-| 24  | Shareable reports               |
-| 25  | Share card                      |
-| 26  | Mobile responsiveness           |
-| 27  | Deployment                      |
-| 28  | End-to-end testing              |
-| 29  | Bug fixing                      |
-| 30  | **🚀 Launch**                   |
+Your analysis is based only on your public developer presence.
 
 ---
 
-# 📈 Build in Public
+## ⚠️ Important Disclaimer
 
-I'm documenting the journey publicly rather than disappearing for months and coming back with:
+**GitReal is not a measure of developer ability.**
 
-> "I made a project."
+GitHub activity is only one source of evidence. Someone can be an excellent developer with a small public presence, private repositories, professional work that cannot be published, or experience outside of GitHub.
 
-The idea is to show the actual progression:
-
-```text
-Idea
- ↓
-Architecture
- ↓
-First commit
- ↓
-OAuth
- ↓
-APIs
- ↓
-Analytics
- ↓
-Resume parsing
- ↓
-Skill matching
- ↓
-AI recommendations
- ↓
-Deployment
- ↓
-Launch
-```
-
-Follow along to see GitReal go from an idea to a working product in 30 days.
+GitReal is intended as a **reflection and preparation tool**, not a definitive assessment of technical ability.
 
 ---
 
-# 🎯 MVP Goals
+## 💡 Why I Built This
 
-The first version of GitReal is intentionally focused.
+My resume claimed skills that my GitHub didn't visibly support.
 
-### By Day 30:
+When I realized that, I also realized something else: **I had no idea what my GitHub was actually communicating to recruiters.**
 
-* [x] GitHub authentication
-* [x] GitHub profile analysis
-* [x] Repository analysis
-* [x] Language distribution
-* [x] Coding streaks
-* [x] Activity patterns
-* [x] Resume upload
-* [x] Resume skill extraction
-* [x] Skill normalization
-* [x] Resume vs GitHub evidence matching
-* [x] AI recommendations
-* [x] Shareable developer report
-* [x] Responsive UI
-* [x] Production deployment
+So I built GitReal because **I needed it**. Then I decided to build it publicly so the process itself would be worth something — not just the final product.
 
 ---
 
-# 🔮 Future Ideas
+## 📢 Building in Public
 
-GitReal is starting with a focused MVP, but there are plenty of directions it could eventually go:
+I'm documenting the entire process — the decisions, the bugs, what works, what doesn't. Updates every few days.
 
-* README analysis
-* Private repository support
-* Job-description matching
-* Developer growth tracking
+⭐ **Star the repository to follow along.**
 
-The goal is to expand only when the core product proves useful.
+[⭐ Star GitReal](#)
 
 ---
 
-# 🤝 Contributing
-
-GitReal is being built publicly, and feedback is welcome.
-
-If you find a bug, have an idea, or think an analysis metric is misleading:
-
-1. Open an issue
-2. Describe the problem or idea
-3. Include examples where possible
-4. Explain why you think it would improve GitReal
-
-Contributions are welcome as the project evolves.
-
----
-
-# ⚠️ Important
-
-GitReal's analysis is **not a definitive measurement of developer ability**.
-
-GitHub activity is only one source of evidence.
-
-Someone can be an excellent developer with:
-
-* a small GitHub presence
-* private repositories
-* contributions to closed-source projects
-* work that isn't reflected in commits
-* a different development workflow
-
-GitReal should therefore be viewed as an **evidence and reflection tool**, not a hiring score or objective measure of technical skill.
-
----
-
-# 👨‍💻 Why I'm Building This
-
-I got my resume reviewed today. The feedback was that my GitHub didn't back up what my resume claimed. That's when I realized I had no idea what my GitHub was actually communicating to recruiters. I built GitReal because I needed it myself.
-
-Instead of simply putting another project on my resume, I'm documenting the process of building GitReal from scratch and seeing whether people actually find it useful.
-
-**30 days. One idea. Let's see what happens.**
-
----
-
-## ⭐ If GitReal is useful to you
-
-Try it, share your report, open an issue, or tell me what you think.
-
-And if you want to follow the build:
-
-**⭐ Star the repository and follow the 30-day journey.**
-
----
-
-**GitReal — Your resume makes the claim. Your GitHub provides the evidence.**
+*Your resume makes the claim. Your GitHub provides the evidence.*
