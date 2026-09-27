@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
+const languageAnalyse = require('../services/analytics/languageAnalysis')
 
 router.get('/github', (req, res) => {
   const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=read:user,public_repo`;
@@ -67,7 +68,10 @@ router.get('/github/repos', async (req, res) => {
     }
   })
 
-  res.json(repos);
+  const languageCount = languageAnalyse(repos);
+  res.json({repos,languageCount});
 });
+
+
 
 module.exports = router;
