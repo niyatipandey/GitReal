@@ -2,13 +2,11 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 
-// Step 1 — Send user to GitHub
 router.get('/github', (req, res) => {
   const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=read:user,public_repo`;
   res.redirect(githubAuthUrl);
 });
 
-// Step 3 — GitHub sends user back with a code, we exchange it for a token
 router.get('/github/callback', async (req, res) => {
   const { code } = req.query;
 
@@ -24,7 +22,6 @@ router.get('/github/callback', async (req, res) => {
   res.json({ accessToken });
 });
 
-// Step 4 — Fetch GitHub user profile
 router.get('/github/user', async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
 
@@ -39,6 +36,38 @@ router.get('/github/user', async (req, res) => {
   });
 
   res.json(response.data);
+});
+
+router.get('/github/repos', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const response = await axios.get('https://api.github.com/user/repos', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    params: {
+      per_page: 100,
+      sort: 'updated',
+      type: 'public'
+    }
+  });
+
+  const repos = response.data.map((repo)=>{
+    return {
+      name: repo.name,
+      language: repo.language,
+      updated_at: repo.updated_at,
+      html_url: repo.html_url,
+      description: repo.description,
+      fork: repo.fork
+    }
+  })
+
+  res.json(repos);
 });
 
 module.exports = router;
