@@ -24,4 +24,21 @@ router.get('/github/callback', async (req, res) => {
   res.json({ accessToken });
 });
 
+// Step 4 — Fetch GitHub user profile
+router.get('/github/user', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const response = await axios.get('https://api.github.com/user', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  res.json(response.data);
+});
+
 module.exports = router;
