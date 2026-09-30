@@ -1,15 +1,26 @@
 function languageAnalyse(repos){
-    const count = {}
+    const languages = {};
+
     repos.forEach(repo => {
-        if(repo.language === null){
-        return;
+        if(!repo.language){
+            return;
         }
-        if(!count[repo.language]){
-        count[repo.language]=0;
+
+        if(!languages[repo.language]){
+            languages[repo.language] = {
+                count :0,
+                lastUsed : repo.updated_at
+            };
         }
-        count[repo.language]++;
+
+        languages[repo.language].count++;
+
+        if(new Date(repo.updated_at) > languages[repo.language].lastUsed){
+            languages[repo.language].lastUsed = repo.updated_at;
+        }
     });
-    return count;
+
+    return languages;
 }
 
 module.exports = languageAnalyse

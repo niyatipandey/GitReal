@@ -72,6 +72,30 @@ router.get('/github/repos', async (req, res) => {
   res.json({repos,languageCount});
 });
 
+router.get('/github/repos/:owner/:repo/commits/:sha', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  const { owner, repo , sha } = req.params;
+
+  const response = await axios.get(
+    `https://api.github.com/repos/${owner}/${repo}/commits/${sha}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      params: {
+        per_page: 10
+      }
+    }
+  );
+
+  res.json(response.data);
+});
+
 
 
 module.exports = router;
