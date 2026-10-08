@@ -22,4 +22,21 @@ function getLanguageFromFile(filename){
     return languageMap[extension] || null;
 }
 
-module.exports = getLanguageFromFile;
+function getLanguagesFromFiles(files){
+    const languages = [];
+
+    files.forEach(file =>{
+        const language = getLanguageFromFile(file.filename);
+
+        if(language && !languages.includes(language)){
+            languages.push(language);
+        }
+    })
+
+    return languages;
+}
+
+module.exports = {
+    getLanguageFromFile,
+    getLanguagesFromFiles
+}
