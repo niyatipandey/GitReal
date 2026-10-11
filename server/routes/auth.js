@@ -99,7 +99,7 @@ router.get('/github/repo/tree', async (req, res) => {
     }
   );
 
-  const packageFile = treeResponse.data.tree.find(
+  const packageFile = treeResponse.data.tree.filter(
     file => file.path === 'package.json' || file.path.endsWith('/package.json')
   );
 
@@ -109,19 +109,26 @@ router.get('/github/repo/tree', async (req, res) => {
     });
   }
 
-  const blobResponse = await axios.get(
-    `https://api.github.com/repos/${owner}/${repo}/git/blobs/${packageFile.sha}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
+  const allTechnologies = await Promise.all(
+    packageFile.map(async (file)=>{
+      const blobResponse = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/git/blobs/${file.sha}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    }
-  );
+    );
 
-  const packageJson = decodePackageJson(blobResponse.data.content);
+    const packageJson = decodePackageJson(blobResponse.data.content);
 
-  const technologies = detectTechnologies(packageJson);
+    const technologies = detectTechnologies(packageJson);
+    return technologies;
+    
+    })
+  )
 
+  const technologies = [...new Set(allTechnologies.flat())];
   res.json({ technologies });
 });
 
