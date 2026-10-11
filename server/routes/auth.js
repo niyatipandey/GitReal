@@ -77,49 +77,6 @@ router.get('/github/repos', async (req, res) => {
   res.json({repos,languageCount});
 });
 
-router.get('/github/repos/:owner/:repo/commits', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-
-  const { owner, repo , sha } = req.params;
-
-  const response = await axios.get(
-    `https://api.github.com/repos/${owner}/${repo}/commits`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      params: {
-        per_page: 10
-      }
-    }
-  );
-
-  const commits = response.data.map(commit =>({
-    sha : commit.sha,
-    date : commit.commit.author.date
-  }))
-
-
-  const files = response.data.files.map(file =>({
-    filename : file.filename,
-    language: getLanguageFromFile(file.filename)
-  }));
-
-  const languages = getLanguagesFromFiles(files);
-
-  res.json({
-    commits,
-    sha,
-    date: response.data.commit.author.date,
-    languages,
-    files
-  });
-});
-
 router.get('/github/repo/tree', async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
 
@@ -127,8 +84,14 @@ router.get('/github/repo/tree', async (req, res) => {
     return res.status(401).json({ error: 'No token provided' });
   }
 
+  const {owner, repo} = req.query;
+
+  if(!owner || !repo){
+    return res.status(400).json({ error: 'owner and repo are required' });
+  }
+
   const treeResponse = await axios.get(
-    'https://api.github.com/repos/niyatipandey/Layrd/git/trees/main?recursive=1',
+    `https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`,
     {
       headers: {
         Authorization: `Bearer ${token}`
@@ -136,21 +99,8 @@ router.get('/github/repo/tree', async (req, res) => {
     }
   );
 
-  const relevantFiles = treeResponse.data.tree.filter(file => {
-    if (file.type !== 'blob') return false;
-
-    if (file.path.includes('node_modules/')) return false;
-
-    return (
-      file.path.endsWith('.js') ||
-      file.path.endsWith('.jsx') ||
-      file.path.endsWith('.ts') ||
-      file.path.endsWith('.tsx')
-    );
-  });
-
   const packageFile = treeResponse.data.tree.find(
-    file => file.path === 'client/package.json'
+    file => file.path === 'package.json' || file.path.endsWith('/package.json')
   );
 
   if (!packageFile) {
@@ -160,7 +110,7 @@ router.get('/github/repo/tree', async (req, res) => {
   }
 
   const blobResponse = await axios.get(
-    `https://api.github.com/repos/niyatipandey/Layrd/git/blobs/${packageFile.sha}`,
+    `https://api.github.com/repos/${owner}/${repo}/git/blobs/${packageFile.sha}`,
     {
       headers: {
         Authorization: `Bearer ${token}`
@@ -172,61 +122,7 @@ router.get('/github/repo/tree', async (req, res) => {
 
   const technologies = detectTechnologies(packageJson);
 
-  const files = await Promise.all(
-  relevantFiles.map(async (file) => {
-    const blobResponse = await axios.get(
-      `https://api.github.com/repos/niyatipandey/Layrd/git/blobs/${file.sha}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
-
-    const content = Buffer.from(
-      blobResponse.data.content,
-      'base64'
-    ).toString('utf-8');
-
-    return {
-      path: file.path,
-      content
-    };
-  })
-);
-
-res.json({ files });
+  res.json({ technologies });
 });
-
-router.get('/github/repo/file', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-
-  const response = await axios.get(
-    'https://api.github.com/repos/niyatipandey/Layrd/git/blobs/e1a6f554b865747da5407e7d686d753de25e687a',
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-  );
-
-  const content = Buffer.from(
-    response.data.content,
-    'base64'
-  ).toString('utf-8');
-
-  const technologies = detectSourceTechnologies(content);
-
-  res.json({
-    filename: 'client/src/App.jsx',
-    technologies
-  });
-});
-
-
 
 module.exports = router;
