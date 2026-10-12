@@ -132,4 +132,92 @@ router.get('/github/repo/tree', async (req, res) => {
   res.json({ technologies });
 });
 
+
+router.get('/github/analyze', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  try {
+    const response = await axios.get(
+      'https://api.github.com/user/repos',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: {
+          per_page: 10,
+          sort: 'updated',
+          type: 'public'
+        }
+      }
+    );
+
+    const repos = response.data;
+    const combinedTech = {};
+
+    for (const repo of repos) {
+      const treeResponse = await axios.get(
+        `https://api.github.com/repos/${repo.owner.login}/${repo.name}/git/trees/${repo.default_branch}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          params: {
+            recursive: 1
+          }
+        }
+      );
+
+      const packageFile = treeResponse.data.tree.find(
+        file => file.path === 'package.json'
+      );
+
+      if (!packageFile) continue;
+
+      const blobResponse = await axios.get(
+        `https://api.github.com/repos/${repo.owner.login}/${repo.name}/git/blobs/${packageFile.sha}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const packageJson = decodePackageJson(
+        blobResponse.data.content
+      );
+
+      const technologies = detectTechnologies(packageJson);
+
+      technologies.forEach(technology => {
+        if (!combinedTech[technology]) {
+          combinedTech[technology] = {
+            repositories: []
+          };
+        }
+
+        combinedTech[technology].repositories.push(repo.name);
+      });
+    }
+
+    return res.json({
+      repositoriesAnalyzed: repos.length,
+      technologyEvidence: combinedTech
+    });
+  } catch (error) {
+    console.error(
+      'Repository analysis failed:',
+      error.response?.data || error.message
+    );
+
+    return res.status(500).json({
+      error: 'Failed to analyze repositories'
+    });
+  }
+});
+
+
 module.exports = router;
