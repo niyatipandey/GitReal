@@ -141,81 +141,65 @@ router.get('/github/analyze', async (req, res) => {
   }
 
   try {
-    const response = await axios.get(
-      'https://api.github.com/user/repos',
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        params: {
-          per_page: 10,
-          sort: 'updated',
-          type: 'public'
-        }
-      }
-    );
+    const response = await axios.get('https://api.github.com/user/repos', {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { per_page: 10, sort: 'updated', type: 'public' }
+    });
 
     const repos = response.data;
+
+    const repoResults = await Promise.all(
+      repos.map(async (repo) => {
+        try {
+          const treeResponse = await axios.get(
+            `https://api.github.com/repos/${repo.owner.login}/${repo.name}/git/trees/${repo.default_branch}?recursive=1`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          const packageFiles = treeResponse.data.tree.filter(
+            file => file.path === 'package.json' || file.path.endsWith('/package.json')
+          );
+
+          if (packageFiles.length === 0) {
+            return { repoName: repo.name, technologies: [] };
+          }
+
+          const allTechnologies = await Promise.all(
+            packageFiles.map(async (file) => {
+              const blobResponse = await axios.get(
+                `https://api.github.com/repos/${repo.owner.login}/${repo.name}/git/blobs/${file.sha}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+              const packageJson = decodePackageJson(blobResponse.data.content);
+              return detectTechnologies(packageJson);
+            })
+          );
+
+          const technologies = [...new Set(allTechnologies.flat())];
+          return { repoName: repo.name, technologies };
+
+        } catch (error) {
+          console.error(`Failed on repo: ${repo.name}`, error.response?.data?.message);
+          return { repoName: repo.name, technologies: [] };
+        }
+      })
+    );
+
     const combinedTech = {};
-
-    for (const repo of repos) {
-      const treeResponse = await axios.get(
-        `https://api.github.com/repos/${repo.owner.login}/${repo.name}/git/trees/${repo.default_branch}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          params: {
-            recursive: 1
-          }
-        }
-      );
-
-      const packageFile = treeResponse.data.tree.find(
-        file => file.path === 'package.json'
-      );
-
-      if (!packageFile) continue;
-
-      const blobResponse = await axios.get(
-        `https://api.github.com/repos/${repo.owner.login}/${repo.name}/git/blobs/${packageFile.sha}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      const packageJson = decodePackageJson(
-        blobResponse.data.content
-      );
-
-      const technologies = detectTechnologies(packageJson);
-
-      technologies.forEach(technology => {
-        if (!combinedTech[technology]) {
-          combinedTech[technology] = {
-            repositories: []
-          };
-        }
-
-        combinedTech[technology].repositories.push(repo.name);
+    repoResults.forEach(({ repoName, technologies }) => {
+      technologies.forEach(tech => {
+        if (!combinedTech[tech]) combinedTech[tech] = { repositories: [] };
+        combinedTech[tech].repositories.push(repoName);
       });
-    }
+    });
 
     return res.json({
       repositoriesAnalyzed: repos.length,
       technologyEvidence: combinedTech
     });
-  } catch (error) {
-    console.error(
-      'Repository analysis failed:',
-      error.response?.data || error.message
-    );
 
-    return res.status(500).json({
-      error: 'Failed to analyze repositories'
-    });
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to analyze repositories' });
   }
 });
 
