@@ -143,7 +143,7 @@ router.get('/github/analyze', async (req, res) => {
   try {
     const response = await axios.get('https://api.github.com/user/repos', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { per_page: 10, sort: 'updated', type: 'public' }
+      params: { per_page: 10, sort: 'updated', type: 'owner' }
     });
 
     const repos = response.data;
