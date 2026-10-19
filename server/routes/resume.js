@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const { PDFParse } = require('pdf-parse');
 const router = express.Router();
+const extractSkillsFromResume = require('../services/ai/skillExtraction');
+
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -40,9 +42,14 @@ router.post('/upload', (req, res) => {
 
     try {
       const result = await parser.getText();
-      res.json({ text: result.text });
+      const resumeText = result.text;
+      const skills = await extractSkillsFromResume(resumeText);
+
+      res.json({ skills });
     } catch (error) {
-      res.status(422).json({ error: 'Could not extract text from this PDF' });
+       console.error('PDF parse error:', error.message);
+  console.error('Error details:', error.response?.data);
+  res.status(422).json({ error: 'Could not extract text from this PDF' });
     } finally {
         if (parser) await parser.destroy().catch(() => {});
     }
