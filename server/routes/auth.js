@@ -156,27 +156,73 @@ router.get('/github/analyze', async (req, res) => {
             { headers: { Authorization: `Bearer ${token}` } }
           );
 
-          const packageFiles = treeResponse.data.tree.filter(
-            file => file.path === 'package.json' || file.path.endsWith('/package.json')
-          );
+          
+          const excludedDirs = new Set([
+            'node_modules',
+            'dist',
+            'build',
+            'coverage',
+            '.git',
+            '.next',
+            '.vite',
+            '.turbo',
+            '.cache',
+            'vendor',
+            'venv',
+            '.venv',
+            '__pycache__',
+            'target',
+            'out'
+          ]);
+
+          const packageFiles = treeResponse.data.tree.filter((file) => {
+            const pathParts = file.path.split('/');
+
+            const isExcluded = pathParts.some((part) =>
+              excludedDirs.has(part)
+            );
+
+            const isPackageJson =
+              file.path === 'package.json' ||
+              file.path.endsWith('/package.json');
+
+            return (
+              isPackageJson &&
+              !isExcluded &&
+              file.type === 'blob'
+            );
+          });
+
 
           if (packageFiles.length === 0) {
             return { repoName: repo.name, technologies: [] };
           }
 
-          const allTechnologies = await Promise.all(
-            packageFiles.map(async (file) => {
-              const blobResponse = await axios.get(
-                `https://api.github.com/repos/${repo.owner.login}/${repo.name}/git/blobs/${file.sha}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-              );
-              const packageJson = decodePackageJson(blobResponse.data.content);
-              return detectTechnologies(packageJson);
-            })
-          );
+        const allTechnologies = await Promise.all(
+          packageFiles.map(async (file) => {
+            const blobResponse = await axios.get(
+              `https://api.github.com/repos/${repo.owner.login}/${repo.name}/git/blobs/${file.sha}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
 
-          const technologies = [...new Set(allTechnologies.flat())];
-          return { repoName: repo.name, technologies };
+            const packageJson = decodePackageJson(blobResponse.data.content);
+            const technologies = detectTechnologies(packageJson);
+
+            return technologies.map((tech) => ({
+              name: tech,
+              evidence: {
+                type: 'dependency',
+                source: file.path,
+                details: `${tech} is declared in ${file.path}`
+              }
+            }));
+          })
+        );
+
+        const technologies = allTechnologies.flat();
+
+        return { repoName: repo.name, technologies };
+
 
         } catch (error) {
           console.error(`Failed on repo: ${repo.name}`, error.response?.data?.message);
@@ -185,13 +231,28 @@ router.get('/github/analyze', async (req, res) => {
       })
     );
 
+    
     const combinedTech = {};
+
     repoResults.forEach(({ repoName, technologies }) => {
-      technologies.forEach(tech => {
-        if (!combinedTech[tech]) combinedTech[tech] = { repositories: [] };
-        combinedTech[tech].repositories.push(repoName);
+      technologies.forEach(({ name, evidence }) => {
+        if (!combinedTech[name]) {
+          combinedTech[name] = { repositories: [] };
+        }
+
+        let repository = combinedTech[name].repositories.find(
+          (item) => item.name === repoName
+        );
+
+        if (!repository) {
+          repository = { name: repoName, evidence: [] };
+          combinedTech[name].repositories.push(repository);
+        }
+
+        repository.evidence.push(evidence);
       });
     });
+
 
     return res.json({
       repositoriesAnalyzed: repos.length,
