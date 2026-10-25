@@ -1,251 +1,183 @@
 # GitReal
 
-> **Does your GitHub actually back up your resume?**
+**Does the candidate's GitHub provide evidence for the skills listed on their resume?**
 
-GitReal is a developer credibility tool that compares what you claim on your resume with what your public GitHub activity actually shows.
+GitReal is a recruiter-focused GitHub repository intelligence tool that helps connect the technical skills claimed on a candidate's resume with evidence found in their GitHub repositories.
 
-Upload your resume. Connect your GitHub. GitReal tells you what a recruiter sees — and where the gaps are.
+Instead of relying solely on a list of technologies on a resume, GitReal helps recruiters investigate which skills are supported by repository-level evidence, which repositories provide that evidence, and where evidence is limited or unavailable.
 
-**Built in public.**
+The goal is to make technical screening more evidence-based, transparent, and easier to investigate.
 
-[Live Demo](#) · [GitHub](#) · [Follow the Build](#)
+🚧 **Currently in development.** GitReal is being built incrementally, starting with resume processing and skill extraction before expanding into repository analysis and evidence-based reporting.
 
----
+## 🎯 The Problem
 
-## 🚨 The Problem
+A candidate's resume might list React, Node.js, MongoDB, Python, and AWS.
 
-A resume can say:
+But how can a recruiter investigate those claims using the candidate's public GitHub repositories?
 
-> React · Node.js · MongoDB · Python · Docker · AWS
+Manually reviewing repositories takes time. A technology appearing in a repository's dependencies doesn't necessarily mean the candidate has demonstrated meaningful use of it, and a missing signal doesn't necessarily mean the candidate lacks that skill.
 
-But a resume doesn't show whether those skills are backed by real work.
-
-**GitHub does.**
-
-The problem is that most developers have no idea what their public GitHub is actually communicating to someone reviewing their application.
-
-GitReal closes that gap.
-
----
+GitReal aims to make this investigation easier by connecting resume-listed skills to relevant repository evidence.
 
 ## 🔍 How It Works
 
-```text
-Upload Resume
-      ↓
-LLM extracts your tech stack
-      ↓
-You confirm or edit
-      ↓
-Connect GitHub (OAuth)
-      ↓
-Select which skills to check
-      ↓
-GitReal analyzes your public repositories
-      ↓
-Your GitReal Report
-```
+The intended workflow is:
 
-The result answers one simple question:
+1. **Provide a candidate's resume** — Upload a PDF resume.
+2. **Extract technical skills** — Use an LLM to identify skills and group them into categories.
+3. **Review the extracted skills** — Allow the recruiter to verify or correct the extracted information.
+4. **Connect GitHub repositories** — Access the candidate's public repository data through GitHub integration.
+5. **Map skills to repositories** — Identify relevant repositories for each resume-listed skill.
+6. **Inspect repository evidence** — Examine dependency metadata and relevant source files to understand how a technology appears in a repository.
+7. **Generate an evidence report** — Present the supporting repositories, observed signals, and limitations for each skill.
 
-> **"Does my public GitHub support what my resume claims?"**
+The objective is not to produce another candidate score. It is to help recruiters understand what the available evidence does and does not support.
 
----
-
-## ✨ What GitReal Analyzes
+## 🧩 Core Features
 
 ### 📄 Resume Skill Extraction
 
-Upload your resume and GitReal uses an LLM to extract the technologies you claim.
+GitReal accepts a resume PDF and extracts technical skills using an LLM.
 
-It automatically normalizes variations such as:
+The extraction process aims to:
+- Preserve the skill categories used in the resume where possible.
+- Extract explicitly mentioned technologies rather than inventing skills.
+- Return structured data that can be processed by the rest of the application.
+- Make extracted skills available for review before repository analysis.
 
-| Resume   | Normalized |
-| -------- | ---------- |
-| ReactJS  | React      |
-| Node.js  | Node       |
-| Mongo DB | MongoDB    |
-| Postgres | PostgreSQL |
+LLM output can be incomplete or inconsistently formatted, so reliable extraction and validation are important parts of the implementation.
 
-You **confirm or edit the extracted skills** before analysis begins.
+### 🐙 GitHub Repository Analysis
 
-You stay in control.
+GitReal uses GitHub data to investigate the candidate's public repositories.
 
----
+Repository analysis is intended to examine signals such as:
+- Technologies declared in `package.json` dependencies and development dependencies.
+- Relevant source files that may provide additional context.
+- Which repositories contain evidence associated with a particular skill.
 
-### 🐙 GitHub Evidence
+A dependency declaration is a useful discovery signal, not proof of proficiency. Source-level evidence can provide more context, but it must also be interpreted carefully.
 
-For every skill you select, GitReal analyzes your **public repositories** for two primary signals:
+### 🔗 Resume-to-Repository Skill Mapping
 
-#### Breadth
-
-How many repositories show evidence of the technology?
-
-#### Recency
-
-When did you last actively use it?
-
-Both signals matter.
-
-A skill used across 5 repositories but dormant for 18 months tells a different story from a skill you used last week.
-
----
-
-## 📊 Resume vs Reality
-
-GitReal turns the analysis into an easy-to-understand comparison.
-
-| Resume Skill | GitHub Evidence                 | Assessment     |
-| ------------ | ------------------------------- | -------------- |
-| React        | Multiple repos, recently active | 🟢 Strong      |
-| Node.js      | Several backend projects        | 🟢 Strong      |
-| Python       | One small project               | 🟡 Moderate    |
-| Docker       | Little to no evidence           | 🔴 Limited     |
-| AWS          | No meaningful evidence found    | ⚫ No Evidence |
-
-Each result includes a plain-English explanation rather than just a score.
-
-### Example
-
-> **"React found in 4 repositories. Last active 2 months ago. Strong visibility."**
-
-Or:
-
-> **"Docker mentioned on your resume but found in 0 public repositories. One small project would significantly improve this."**
-
----
-
-## 🤖 AI Recommendations
-
-Once the deterministic analysis is complete, GitReal passes the structured results to an LLM to generate specific, actionable recommendations.
+The central part of GitReal is connecting each skill claimed on the resume to relevant repositories.
 
 For example:
 
-> **"Your GitHub strongly supports React and Node.js. However, AWS appears prominently on your resume with no corresponding public evidence. Consider either building a small project that uses AWS or reducing its emphasis on your resume before your next application."**
+| Resume skill | Potential evidence |
+|---|---|
+| React | Repositories declaring React dependencies, with source files to investigate |
+| Express.js | Repositories declaring Express dependencies, with relevant backend files |
+| MongoDB | Repositories with evidence of MongoDB usage |
+| Python | Relevant Python repositories and source files, where available |
 
-**The underlying analysis is deterministic.**
+These are illustrative examples, not guaranteed findings. The evidence available depends on the candidate's repositories and the analysis supported for each technology.
 
-AI is used for **interpretation and recommendations**, not for calculating the evidence itself.
+### 📊 Evidence-Based Reporting
 
----
+The intended report will help recruiters investigate each skill individually.
 
-## 🔗 Shareable Developer Report
+For each skill, GitReal aims to present:
+- The skill listed on the resume.
+- Relevant repositories and their owners.
+- The evidence detected in each repository.
+- An explanation of what the evidence supports and what remains uncertain.
 
-GitReal generates a public report you can share with anyone.
+The emphasis is on traceable evidence and clear explanations rather than unexplained scores or automatic candidate rankings.
 
-```text
-┌───────────────────────────────────┐
-│             GITREAL               │
-│                                   │
-│          Your Name                │
-│       Developer Report            │
-│                                   │
-│  🔥 24 day streak                 │
-│  💻 6 languages                   │
-│  📦 18 repositories               │
-│                                   │
-│  Resume vs Reality                │
-│                                   │
-│  React       🟢 Strong            │
-│  Node        🟢 Strong            │
-│  Python      🟡 Moderate          │
-│  Docker      🔴 Limited           │
-│                                   │
-│     gitreal.app/your-username     │
-└───────────────────────────────────┘
-```
+A lack of public evidence should be reported as **evidence not found**, not as proof that a candidate lacks the skill.
 
-**One link. Everything a recruiter needs to see.**
+## 🧠 Design Principles
 
----
+GitReal is being developed around a few principles.
+
+**Evidence before conclusions**
+
+Repository signals should be traceable to the repositories and files they came from.
+
+**Deterministic analysis where possible**
+
+Rules and structured repository data should drive evidence detection. An LLM can help interpret information, but it should not invent repository evidence or independently determine a candidate's technical ability.
+
+**Transparency over arbitrary scores**
+
+Recruiters should be able to understand why a skill was matched to a repository and what limitations apply.
+
+**No assumptions from missing evidence**
+
+A candidate may have private repositories, professional work they cannot publish, or experience that is not represented on GitHub. Missing public evidence is not a negative verdict on ability.
+
+**Human judgment stays central**
+
+GitReal is intended to support technical screening, not replace recruiter judgment or automatically rank candidates.
 
 ## 🛠️ Tech Stack
 
-| Layer               | Technology            |
-| ------------------- | --------------------- |
-| Frontend            | React, Vite, Recharts |
-| Backend             | Node.js, Express      |
-| Database            | MongoDB               |
-| Authentication      | GitHub OAuth          |
-| AI                  | Groq                  |
-| Frontend Deployment | Vercel                |
-| Backend Deployment  | Render                |
+| Layer | Technology |
+|---|---|
+| Frontend | React, TypeScript, Vite |
+| Backend | Node.js, Express |
+| Resume processing | PDF text extraction |
+| AI integration | OpenRouter-compatible chat completions API |
+| Repository data | GitHub API |
+| Database | MongoDB — planned integration |
 
----
+The stack reflects the current implementation and intended direction. Individual integrations and features are still being developed.
 
-## 🗺️ Roadmap
+## 🚧 Development Status
 
-| Week       | Focus                                                          |
-| ---------- | -------------------------------------------------------------- |
-| **Week 1** | GitHub OAuth, profile data, repo + language fetching           |
-| **Week 2** | Streak calculations, activity patterns, analytics dashboard    |
-| **Week 3** | Resume upload, PDF parsing, skill extraction, normalization    |
-| **Week 4** | Evidence matching, Resume vs Reality table, AI recommendations |
-| **Week 5** | Shareable reports, mobile responsiveness, deployment           |
-| **Week 6** | End-to-end testing, bug fixes, launch                          |
+GitReal is being built step by step, with an emphasis on understanding and validating each part of the system before expanding it.
 
----
+### Implemented or in progress
 
-## ✅ MVP Checklist
+- [x] Initial React + TypeScript + Vite frontend
+- [x] Express backend setup
+- [x] Resume PDF upload endpoint
+- [x] PDF text extraction
+- [x] LLM-based technical skill extraction
+- [x] Display extracted skill categories and skills in the frontend
+- [x] Initial GitHub repository and dependency analysis
+- [ ] Improve extraction reliability and output validation
+- [ ] Allow recruiters to review and edit extracted skills
+- [ ] Map resume skills to relevant repositories more comprehensively
+- [ ] Inspect relevant source files for additional evidence
+- [ ] Build the recruiter-facing evidence report
+- [ ] Add tests for extraction, matching, and evidence quality
+- [ ] Complete end-to-end testing and deployment
 
-* [ ] GitHub OAuth
-* [ ] Public repository analysis
-* [ ] Language distribution
-* [ ] Coding streaks and activity patterns
-* [ ] Resume upload and parsing
-* [ ] LLM skill extraction with user confirmation
-* [ ] Skill normalization
-* [ ] Resume vs GitHub evidence matching
-* [ ] AI recommendations
-* [ ] Shareable developer report
-* [ ] Responsive UI
-* [ ] Production deployment
+The checklist will evolve as the implementation progresses. A planned feature is not considered complete simply because it appears in the intended workflow.
 
----
+## 🔐 Privacy and Scope
 
-## 🔐 Privacy & Scope
+GitReal is designed around evidence available from public GitHub repositories.
 
-GitReal analyzes **public GitHub activity only** — exactly the information a recruiter can see when they open your public GitHub profile.
+The intended analysis should:
+- Use only repository data the integration is authorized to access.
+- Clearly identify the repositories and evidence used for each finding.
+- Avoid presenting inaccessible or unexamined code as analyzed evidence.
+- Distinguish between a lack of detected evidence and a lack of technical ability.
 
-### GitReal does not:
-
-* Access private repositories
-* Analyze private commits
-* Access private code
-* Include private repositories in your report
-
-Your analysis is based only on your public developer presence.
-
----
+Candidate data handling, retention, and access controls will need to be defined and implemented before production use.
 
 ## ⚠️ Important Disclaimer
 
-**GitReal is not a measure of developer ability.**
+GitReal is not a definitive measure of developer ability.
 
-GitHub activity is only one source of evidence. Someone can be an excellent developer with a small public presence, private repositories, professional work that cannot be published, or experience outside of GitHub.
+Public repositories offer only a partial view of someone's work. A candidate may be highly capable without maintaining extensive public projects, and the presence of a technology in a repository does not by itself demonstrate proficiency.
 
-GitReal is intended as a **reflection and preparation tool**, not a definitive assessment of technical ability.
+GitReal is intended to help recruiters investigate technical claims using available evidence. Its findings should inform further review, not serve as an automatic hiring decision.
 
----
+## 💡 Why GitReal?
 
-## 💡 Why I Built This
+Technical skills are easy to list on a resume, but investigating the work behind those claims can take time.
 
-My resume claimed skills that my GitHub didn't visibly support.
+GitReal is being built to bridge that gap by connecting resume-listed skills with concrete repository evidence, helping recruiters move from claims to informed questions.
 
-When I realized that, I also realized something else: **I had no idea what my GitHub was actually communicating to recruiters.**
-
-So I built GitReal because **I needed it**. Then I decided to build it publicly so the process itself would be worth something — not just the final product.
+The goal is not to decide whether a candidate is a good developer. It is to make the available evidence easier to find, understand, and evaluate.
 
 ---
 
-## 📢 Building in Public
+**GitReal — Connecting resume claims with repository evidence.**
 
-I'm documenting the entire process — the decisions, the bugs, what works, what doesn't. Updates every few days.
-
-⭐ **Star the repository to follow along.**
-
-[⭐ Star GitReal](#)
-
----
-
-*Your resume makes the claim. Your GitHub provides the evidence.*
+Built incrementally, with an emphasis on transparent analysis and responsible use of AI.
