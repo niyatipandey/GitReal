@@ -7,6 +7,8 @@ const languageRecency = require('../services/analytics/languageRecency');
 const decodePackageJson = require('../services/analytics/packageAnalysis');
 const detectTechnologies = require('../services/analytics/technologyDetection');
 const detectSourceTechnologies = require('../services/analytics/sourceAnalysis');
+const {isEligibleSourceFile,getFilePriority} = require('../services/analytics/sourceFileSelection');
+const findSkillsToInvestigate = require('../services/analytics/skillMatching');
 
 router.get('/github', (req, res) => {
   const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=read:user,public_repo`;
@@ -102,6 +104,7 @@ router.get('/github/repo/tree', async (req, res) => {
   const packageFile = treeResponse.data.tree.filter(
     file => file.path === 'package.json' || file.path.endsWith('/package.json')
   );
+  
 
   if (!packageFile) {
     return res.json({
@@ -192,6 +195,19 @@ router.get('/github/analyze', async (req, res) => {
               file.type === 'blob'
             );
           });
+          const sourceFiles = treeResponse.data.tree
+          .filter((file) =>
+            file.type === 'blob' &&
+            isEligibleSourceFile(file.path)
+          )
+          .sort(
+            (a, b) =>
+              getFilePriority(a.path) - getFilePriority(b.path)
+          );
+          console.log(
+            `Source files selected from ${repo.name}:`,
+            sourceFiles.slice(0, 10).map((file) => file.path)
+          );
 
 
           if (packageFiles.length === 0) {
@@ -221,12 +237,12 @@ router.get('/github/analyze', async (req, res) => {
 
         const technologies = allTechnologies.flat();
 
-        return { repoName: repo.name, technologies };
+        return { repoName: repo.name, owner: repo.owner.login, technologies };
 
 
         } catch (error) {
           console.error(`Failed on repo: ${repo.name}`, error.response?.data?.message);
-          return { repoName: repo.name, technologies: [] };
+          return { repoName: repo.name,owner: repo.owner.login, technologies: [] };
         }
       })
     );
@@ -234,18 +250,18 @@ router.get('/github/analyze', async (req, res) => {
     
     const combinedTech = {};
 
-    repoResults.forEach(({ repoName, technologies }) => {
+    repoResults.forEach(({ repoName,owner, technologies }) => {
       technologies.forEach(({ name, evidence }) => {
         if (!combinedTech[name]) {
           combinedTech[name] = { repositories: [] };
         }
 
         let repository = combinedTech[name].repositories.find(
-          (item) => item.name === repoName
+          (item) => item.name === repoName && item.owner === owner
         );
 
         if (!repository) {
-          repository = { name: repoName, evidence: [] };
+          repository = { name: repoName,owner, evidence: [] };
           combinedTech[name].repositories.push(repository);
         }
 

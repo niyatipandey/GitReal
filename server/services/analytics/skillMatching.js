@@ -19,7 +19,8 @@ function findSkillsToInvestigate(resumeSkills, technologyEvidence) {
         matches.push({
           category,
           skill,
-          repository: repository.name
+          repository: repository.name,
+          owner: repository.owner
         });
       }
     }

@@ -43,6 +43,7 @@ async function extractSkillsFromResume(resumeText) {
   );
 
   const content = response.data.choices[0].message.content;
+
   return JSON.parse(content);
 }
 
