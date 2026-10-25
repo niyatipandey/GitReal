@@ -37,7 +37,7 @@ function App() {
       if (!response.ok) {
         throw new Error(data.error || 'Resume upload failed.')
       }
-
+      console.log(data.skills)
       setSkills(data.skills)
     } catch (err) {
       setError(
